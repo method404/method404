@@ -23,7 +23,7 @@
 
 <!-- tech-stack:end -->
 
-## GitHub Status
+## 📊 GitHub Status
 
 <!-- profile-metrics:start -->
 <img src="./assets/github-status-v2.svg" alt="GitHub status" width="760" />
@@ -31,6 +31,6 @@
 <img src="./assets/most-used-languages-v2.svg" alt="Most used languages" width="760" />
 <!-- profile-metrics:end -->
 
-## Contact
+## 📫 Contact
 
 [![Email](https://img.shields.io/badge/Email-safety--bearers.3n%40icloud.com-0d1117?style=flat-square&logo=gmail&logoColor=white)](mailto:safety-bearers.3n@icloud.com)

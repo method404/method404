@@ -426,14 +426,30 @@ def generate_status_svg(metrics: dict | None, repo_count: int):
         stat_svgs.append(
             f'''
     <g transform="translate({x},26)">
-      <text x="0" y="12" fill="#7d8590" font-size="10" letter-spacing="0.1em" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_label}</text>
-      <text x="0" y="42" fill="#c9d1d9" font-size="28" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_value}</text>
+      <text x="0" y="12" fill="var(--muted)" font-size="10" letter-spacing="0.1em" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_label}</text>
+      <text x="0" y="42" fill="var(--text)" font-size="28" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_value}</text>
     </g>'''
         )
 
     svg = f'''<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitHub status card">
-  <rect width="{width}" height="{height}" rx="16" fill="#0d1117"/>
-  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="#30363d"/>
+  <style>
+    :root {{
+      --bg: #ffffff;
+      --border: #d0d7de;
+      --text: #24292f;
+      --muted: #57606a;
+    }}
+    @media (prefers-color-scheme: dark) {{
+      :root {{
+        --bg: #0d1117;
+        --border: #30363d;
+        --text: #c9d1d9;
+        --muted: #7d8590;
+      }}
+    }}
+  </style>
+  <rect width="{width}" height="{height}" rx="16" fill="var(--bg)"/>
+  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="var(--border)"/>
   {''.join(stat_svgs)}
 </svg>
 '''
@@ -476,9 +492,9 @@ def generate_languages_svg(language_totals: Counter):
         rows.append(
             f'''
   {icon_markup}
-  <text x="{label_left}" y="{y + 12}" fill="#c9d1d9" font-size="14" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{html.escape(language)}</text>
-  <text x="{value_right}" y="{y + 12}" text-anchor="end" fill="#7d8590" font-size="11" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{share * 100:.1f}%</text>
-  <rect x="{bar_left}" y="{y + 22}" width="{bar_right - bar_left}" height="8" rx="4" fill="#161b22" />
+  <text x="{label_left}" y="{y + 12}" fill="var(--text)" font-size="14" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{html.escape(language)}</text>
+  <text x="{value_right}" y="{y + 12}" text-anchor="end" fill="var(--muted)" font-size="11" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{share * 100:.1f}%</text>
+  <rect x="{bar_left}" y="{y + 22}" width="{bar_right - bar_left}" height="8" rx="4" fill="var(--track)" />
   <rect x="{bar_left}" y="{y + 22}" width="{bar_width:.2f}" height="8" rx="4" fill="{badge_fill}" />'''
         )
 
@@ -488,9 +504,27 @@ def generate_languages_svg(language_totals: Counter):
         )
 
     svg = f'''<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Most used languages card">
-  <rect width="{width}" height="{height}" rx="16" fill="#0d1117"/>
-  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="#30363d"/>
-  <text x="{padding}" y="30" fill="#c9d1d9" font-size="18" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">Most Used Languages</text>
+  <style>
+    :root {{
+      --bg: #ffffff;
+      --border: #d0d7de;
+      --text: #24292f;
+      --muted: #57606a;
+      --track: #eaeef2;
+    }}
+    @media (prefers-color-scheme: dark) {{
+      :root {{
+        --bg: #0d1117;
+        --border: #30363d;
+        --text: #c9d1d9;
+        --muted: #7d8590;
+        --track: #161b22;
+      }}
+    }}
+  </style>
+  <rect width="{width}" height="{height}" rx="16" fill="var(--bg)"/>
+  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="var(--border)"/>
+  <text x="{padding}" y="30" fill="var(--text)" font-size="18" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">Most Used Languages</text>
   {''.join(rows)}
 </svg>
 '''
