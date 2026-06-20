@@ -14,8 +14,10 @@ from datetime import datetime, timezone
 API_BASE = "https://api.github.com"
 README_PATH = os.path.join(os.path.dirname(os.path.dirname(__file__)), "README.md")
 ASSETS_DIR = os.path.join(os.path.dirname(os.path.dirname(__file__)), "assets")
-STATUS_CARD_PATH = os.path.join(ASSETS_DIR, "github-status-v2.svg")
-LANGUAGES_CARD_PATH = os.path.join(ASSETS_DIR, "most-used-languages-v2.svg")
+STATUS_CARD_LIGHT_PATH = os.path.join(ASSETS_DIR, "github-status-light.svg")
+STATUS_CARD_DARK_PATH = os.path.join(ASSETS_DIR, "github-status-dark.svg")
+LANGUAGES_CARD_LIGHT_PATH = os.path.join(ASSETS_DIR, "most-used-languages-light.svg")
+LANGUAGES_CARD_DARK_PATH = os.path.join(ASSETS_DIR, "most-used-languages-dark.svg")
 
 TECH_STACK_START = "<!-- tech-stack:start -->"
 TECH_STACK_END = "<!-- tech-stack:end -->"
@@ -381,15 +383,23 @@ def build_metrics_block(metrics: dict | None, repo_count: int):
     return "\n".join(
         [
             METRICS_START,
-            '<img src="./assets/github-status-v2.svg" alt="GitHub status" width="760" />',
+            '<picture>',
+            '  <source media="(prefers-color-scheme: dark)" srcset="./assets/github-status-dark.svg" />',
+            '  <source media="(prefers-color-scheme: light)" srcset="./assets/github-status-light.svg" />',
+            '  <img src="./assets/github-status-dark.svg" alt="GitHub status" width="760" />',
+            '</picture>',
             "",
-            '<img src="./assets/most-used-languages-v2.svg" alt="Most used languages" width="760" />',
+            '<picture>',
+            '  <source media="(prefers-color-scheme: dark)" srcset="./assets/most-used-languages-dark.svg" />',
+            '  <source media="(prefers-color-scheme: light)" srcset="./assets/most-used-languages-light.svg" />',
+            '  <img src="./assets/most-used-languages-dark.svg" alt="Most used languages" width="760" />',
+            '</picture>',
             METRICS_END,
         ]
     )
 
 
-def generate_status_svg(metrics: dict | None, repo_count: int):
+def generate_status_svg(metrics: dict | None, repo_count: int, *, bg: str, border: str, text: str, muted: str, out_path: str):
     current_year = datetime.now(timezone.utc).year
 
     if not metrics:
@@ -426,40 +436,24 @@ def generate_status_svg(metrics: dict | None, repo_count: int):
         stat_svgs.append(
             f'''
     <g transform="translate({x},26)">
-      <text x="0" y="12" fill="var(--muted)" font-size="10" letter-spacing="0.1em" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_label}</text>
-      <text x="0" y="42" fill="var(--text)" font-size="28" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_value}</text>
+      <text x="0" y="12" fill="{muted}" font-size="10" letter-spacing="0.1em" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_label}</text>
+      <text x="0" y="42" fill="{text}" font-size="28" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{safe_value}</text>
     </g>'''
         )
 
     svg = f'''<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="GitHub status card">
-  <style>
-    :root {{
-      --bg: #ffffff;
-      --border: #d0d7de;
-      --text: #24292f;
-      --muted: #57606a;
-    }}
-    @media (prefers-color-scheme: dark) {{
-      :root {{
-        --bg: #0d1117;
-        --border: #30363d;
-        --text: #c9d1d9;
-        --muted: #7d8590;
-      }}
-    }}
-  </style>
-  <rect width="{width}" height="{height}" rx="16" fill="var(--bg)"/>
-  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="var(--border)"/>
+  <rect width="{width}" height="{height}" rx="16" fill="{bg}"/>
+  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="{border}"/>
   {''.join(stat_svgs)}
 </svg>
 '''
 
     os.makedirs(ASSETS_DIR, exist_ok=True)
-    with open(STATUS_CARD_PATH, "w", encoding="utf-8") as fh:
+    with open(out_path, "w", encoding="utf-8") as fh:
         fh.write(svg)
 
 
-def generate_languages_svg(language_totals: Counter):
+def generate_languages_svg(language_totals: Counter, *, bg: str, border: str, text: str, muted: str, track: str, out_path: str):
     top_items = language_totals.most_common(8)
     width = 860
     height = max(220, 62 + len(top_items) * 46 + 18)
@@ -492,9 +486,9 @@ def generate_languages_svg(language_totals: Counter):
         rows.append(
             f'''
   {icon_markup}
-  <text x="{label_left}" y="{y + 12}" fill="var(--text)" font-size="14" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{html.escape(language)}</text>
-  <text x="{value_right}" y="{y + 12}" text-anchor="end" fill="var(--muted)" font-size="11" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{share * 100:.1f}%</text>
-  <rect x="{bar_left}" y="{y + 22}" width="{bar_right - bar_left}" height="8" rx="4" fill="var(--track)" />
+  <text x="{label_left}" y="{y + 12}" fill="{text}" font-size="14" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{html.escape(language)}</text>
+  <text x="{value_right}" y="{y + 12}" text-anchor="end" fill="{muted}" font-size="11" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">{share * 100:.1f}%</text>
+  <rect x="{bar_left}" y="{y + 22}" width="{bar_right - bar_left}" height="8" rx="4" fill="{track}" />
   <rect x="{bar_left}" y="{y + 22}" width="{bar_width:.2f}" height="8" rx="4" fill="{badge_fill}" />'''
         )
 
@@ -504,32 +498,14 @@ def generate_languages_svg(language_totals: Counter):
         )
 
     svg = f'''<svg width="{width}" height="{height}" viewBox="0 0 {width} {height}" fill="none" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Most used languages card">
-  <style>
-    :root {{
-      --bg: #ffffff;
-      --border: #d0d7de;
-      --text: #24292f;
-      --muted: #57606a;
-      --track: #eaeef2;
-    }}
-    @media (prefers-color-scheme: dark) {{
-      :root {{
-        --bg: #0d1117;
-        --border: #30363d;
-        --text: #c9d1d9;
-        --muted: #7d8590;
-        --track: #161b22;
-      }}
-    }}
-  </style>
-  <rect width="{width}" height="{height}" rx="16" fill="var(--bg)"/>
-  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="var(--border)"/>
-  <text x="{padding}" y="30" fill="var(--text)" font-size="18" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">Most Used Languages</text>
+  <rect width="{width}" height="{height}" rx="16" fill="{bg}"/>
+  <rect x="0.5" y="0.5" width="{width - 1}" height="{height - 1}" rx="15.5" stroke="{border}"/>
+  <text x="{padding}" y="30" fill="{text}" font-size="18" font-weight="700" font-family="ui-sans-serif, system-ui, -apple-system, Segoe UI, sans-serif">Most Used Languages</text>
   {''.join(rows)}
 </svg>
 '''
 
-    with open(LANGUAGES_CARD_PATH, "w", encoding="utf-8") as fh:
+    with open(out_path, "w", encoding="utf-8") as fh:
         fh.write(svg)
 
 
@@ -555,8 +531,10 @@ def main():
 
     readme = replace_block(readme, TECH_STACK_START, TECH_STACK_END, build_tech_stack_block(detected, language_totals))
     readme = replace_block(readme, METRICS_START, METRICS_END, build_metrics_block(metrics, repo_count=len(repos)))
-    generate_status_svg(metrics, repo_count=len(repos))
-    generate_languages_svg(language_totals)
+    generate_status_svg(metrics, repo_count=len(repos), bg="#ffffff", border="#d0d7de", text="#24292f", muted="#57606a", out_path=STATUS_CARD_LIGHT_PATH)
+    generate_status_svg(metrics, repo_count=len(repos), bg="#0d1117", border="#30363d", text="#c9d1d9", muted="#7d8590", out_path=STATUS_CARD_DARK_PATH)
+    generate_languages_svg(language_totals, bg="#ffffff", border="#d0d7de", text="#24292f", muted="#57606a", track="#eaeef2", out_path=LANGUAGES_CARD_LIGHT_PATH)
+    generate_languages_svg(language_totals, bg="#0d1117", border="#30363d", text="#c9d1d9", muted="#7d8590", track="#161b22", out_path=LANGUAGES_CARD_DARK_PATH)
 
     with open(README_PATH, "w", encoding="utf-8") as fh:
         fh.write(readme)

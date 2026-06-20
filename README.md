@@ -26,9 +26,17 @@
 ## 📊 GitHub Status
 
 <!-- profile-metrics:start -->
-<img src="./assets/github-status-v2.svg" alt="GitHub status" width="760" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/github-status-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/github-status-light.svg" />
+  <img src="./assets/github-status-dark.svg" alt="GitHub status" width="760" />
+</picture>
 
-<img src="./assets/most-used-languages-v2.svg" alt="Most used languages" width="760" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="./assets/most-used-languages-dark.svg" />
+  <source media="(prefers-color-scheme: light)" srcset="./assets/most-used-languages-light.svg" />
+  <img src="./assets/most-used-languages-dark.svg" alt="Most used languages" width="760" />
+</picture>
 <!-- profile-metrics:end -->
 
 ## 📫 Contact
